@@ -1,9 +1,11 @@
 import React from "react";
+import { Header, Main } from "./Section";
 
 function App() {
   return (
     <div>
-      <h1>Hello this is CollegeHub Admin Area</h1>
+      <Header />
+      <Main />
     </div>
   );
 }
