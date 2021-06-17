@@ -26,6 +26,10 @@ export const COURSES = gql`
       id
       duration
       name
+      courses_courseCategory {
+        courseCategoryTitle
+        courseType
+      }
     }
   }
 `;

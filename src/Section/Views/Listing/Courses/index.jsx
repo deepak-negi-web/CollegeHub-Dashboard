@@ -1,15 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSubscription } from "@apollo/client";
 import { ReactTabulator } from "react-tabulator";
 import { Wrapper } from "./styles";
 import tableOptions from "../../../../tableOptions";
 import { COURSES } from "../../../../GraphQl";
 export default function Courses() {
-  const {
-    data: { courses_courses: courses = [] } = {},
-    loading,
-    error,
-  } = useSubscription(COURSES);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { error } = useSubscription(COURSES, {
+    onSubscriptionData: ({
+      subscriptionData: { data: { courses_courses = [] } = {} } = {},
+    } = {}) => {
+      const result = courses_courses.map((course) => {
+        return {
+          id: course?.id,
+          duration: course?.duration,
+          name: course?.name,
+          category: course?.courses_courseCategory?.courseCategoryTitle,
+          type: course?.courses_courseCategory?.courseType,
+        };
+      });
+      console.log({ result });
+      setCourses(result);
+      setLoading(false);
+    },
+  });
 
   const columns = [
     {
@@ -33,10 +48,23 @@ export default function Courses() {
       headerFilter: true,
       hozAlign: "left",
     },
+    {
+      title: "Category",
+      field: "category",
+      headerFilter: true,
+      hozAlign: "left",
+    },
+    {
+      title: "Type",
+      field: "type",
+      headerFilter: true,
+      hozAlign: "left",
+    },
   ];
 
   if (loading) return <p>Loading...</p>;
   if (error) {
+    setLoading(false);
     console.error(error);
   }
   return (
