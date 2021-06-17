@@ -8,12 +8,13 @@ import tableOptions from "../../../../tableOptions";
 import {
   CATEGORIES,
   CREATE_CATEGORY,
+  UPDATE_CATEGORY,
   DELETE_CATEGORY,
 } from "../../../../GraphQl";
 import { useState } from "react";
 export default function Categories() {
   const [show, setShow] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [titleAsId, setTitleAsId] = useState("");
   const [title, setTitle] = useState("");
   const {
     data: { courses_courseCategory: categories = [] } = {},
@@ -26,28 +27,49 @@ export default function Categories() {
       onCompleted: () => {
         setShow(false);
         setTitle("");
+        setTitleAsId("");
       },
       onError: (error) => {
+        setShow(false);
+        setTitle("");
+        setTitleAsId("");
         console.log(error);
       },
     }
   );
-  const [deleteCategory, { loading: isDeletingCategory }] = useMutation(
-    DELETE_CATEGORY,
+  const [deleteCategory] = useMutation(DELETE_CATEGORY, {
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+  const [updateCategory, { loading: isUpdatingCategory }] = useMutation(
+    UPDATE_CATEGORY,
     {
+      onCompleted: () => {
+        setShow(false);
+        setTitle("");
+        setTitleAsId("");
+      },
       onError: (error) => {
+        setShow(false);
+        setTitle("");
+        setTitleAsId("");
         console.log(error);
       },
     }
   );
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setTitle("");
+    setTitleAsId("");
+    setShow(false);
+  };
   const handleShow = () => setShow(true);
 
   const rowClick = (e, cell) => {
     const { title: categoryTitle } = cell._cell.row.data;
     setTitle(categoryTitle);
-    setIsUpdating(true);
+    setTitleAsId(categoryTitle);
     setShow(true);
   };
 
@@ -91,12 +113,24 @@ export default function Categories() {
   ];
 
   const upsertHandler = () => {
-    createCategory({
-      variables: {
-        title,
-        assets: { images: [] },
-      },
-    });
+    if (titleAsId) {
+      updateCategory({
+        variables: {
+          title: titleAsId,
+          _set: {
+            title,
+            assets: { images: [] },
+          },
+        },
+      });
+    } else {
+      createCategory({
+        variables: {
+          title,
+          assets: { images: [] },
+        },
+      });
+    }
   };
 
   if (loading) return <div className="loader">Loading...</div>;
@@ -145,7 +179,7 @@ export default function Categories() {
             onClick={upsertHandler}
             disabled={isCreatingCategory}
           >
-            {isCreatingCategory ? "Saving..." : "Save"}
+            {isCreatingCategory || isUpdatingCategory ? "Saving..." : "Save"}
           </Button>
         </Modal.Footer>
       </Modal>

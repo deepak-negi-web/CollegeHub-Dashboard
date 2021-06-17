@@ -9,10 +9,28 @@ export const CREATE_CATEGORY = gql`
     }
   }
 `;
+
 export const DELETE_CATEGORY = gql`
   mutation DELETE_CATEGORY($title: String!) {
     delete_courses_courseCategory_by_pk(title: $title) {
       title
+    }
+  }
+`;
+
+export const UPDATE_CATEGORY = gql`
+  mutation UPDATE_CATEGORY(
+    $title: String!
+    $_set: courses_courseCategory_set_input!
+  ) {
+    update_courses_courseCategory(
+      where: { title: { _eq: $title } }
+      _set: $_set
+    ) {
+      returning {
+        title
+        assets
+      }
     }
   }
 `;
