@@ -1,1 +1,10 @@
-
+.loader {
+  position: absolute;
+  z-index: 10;
+  background: none;
+  opacity: 0.5;
+  align-items: center;
+  top: 50%;
+  left: 50%;
+  font-size: 24px;
+}

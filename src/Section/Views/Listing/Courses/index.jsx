@@ -78,7 +78,6 @@ export default function Courses() {
             ...tableOptions,
             placeholder: "No Courses Available Yet !",
           }}
-          // ref={tableRef}
         />
       )}
     </Wrapper>

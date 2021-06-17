@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import { DataProvider } from "./Providers";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./global.css";
 
 ReactDOM.render(
