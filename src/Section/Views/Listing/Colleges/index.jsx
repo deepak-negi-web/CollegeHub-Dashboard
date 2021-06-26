@@ -35,7 +35,7 @@ export default function Colleges() {
     },
   ];
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="loader">Loading...</div>;
   if (error) {
     console.error(error);
   }

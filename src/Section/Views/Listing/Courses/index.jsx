@@ -62,7 +62,7 @@ export default function Courses() {
     },
   ];
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="loader">Loading...</div>;
   if (error) {
     setLoading(false);
     console.error(error);

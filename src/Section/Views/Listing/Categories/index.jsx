@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSubscription, useMutation } from "@apollo/client";
 import { ReactTabulator, reactFormatter } from "react-tabulator";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, ProgressBar } from "react-bootstrap";
 import { Wrapper } from "./styles";
 import { DeleteIcon } from "../../../../Assets/icons";
 import tableOptions from "../../../../tableOptions";
@@ -11,11 +11,15 @@ import {
   UPDATE_CATEGORY,
   DELETE_CATEGORY,
 } from "../../../../GraphQl";
-import { useState } from "react";
+import { firebaseUpload } from "../../../../utils";
+
 export default function Categories() {
   const [show, setShow] = useState(false);
   const [titleAsId, setTitleAsId] = useState("");
   const [title, setTitle] = useState("");
+  const [imageAsFile, setImageAsFile] = useState(null);
+  const [imageAsUrl, setImageAsUrl] = useState("");
+  const [uploadingProgress, setUploadingProgress] = useState(0);
   const {
     data: { courses_courseCategory: categories = [] } = {},
     loading,
@@ -112,22 +116,25 @@ export default function Categories() {
     },
   ];
 
-  const upsertHandler = () => {
+  const upsertHandler = async () => {
     if (titleAsId) {
+      const imageUrl = await firebaseUpload(imageAsFile);
+      console.log({ imageUrl });
       updateCategory({
         variables: {
           title: titleAsId,
           _set: {
             title,
-            assets: { images: [] },
+            assets: { images: [imageUrl] },
           },
         },
       });
     } else {
+      const imageUrl = await firebaseUpload(imageAsFile);
       createCategory({
         variables: {
           title,
-          assets: { images: [] },
+          assets: { images: [imageUrl] },
         },
       });
     }
@@ -172,6 +179,16 @@ export default function Categories() {
               onChange={(e) => setTitle(e.target.value)}
             />
           </Form.Group>
+          <Form.Group>
+            <Form.File
+              id="exampleFormControlFile1"
+              label="Category Image"
+              accept="images/*"
+              onChange={(e) => setImageAsFile(e.target.files[0])}
+              required
+            />
+          </Form.Group>
+          {/* <ProgressBar animated now={45} /> */}
         </Modal.Body>
         <Modal.Footer>
           <Button
