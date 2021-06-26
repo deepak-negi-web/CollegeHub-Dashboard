@@ -134,7 +134,7 @@ export default function Categories() {
         variables: {
           title: titleAsId,
           _set: {
-            title,
+            title: title.trim(),
             assets: { images: [url] },
           },
         },
@@ -145,7 +145,7 @@ export default function Categories() {
       setLoading(false);
       createCategory({
         variables: {
-          title,
+          title: title.trim(),
           assets: { images: [url] },
         },
       });
@@ -196,6 +196,13 @@ export default function Categories() {
           <Modal.Title>Add Category</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              style={{ width: "100%", height: "50px", objectFit: "cover" }}
+              alt="no image added"
+            />
+          )}
           <Form.Group controlId="formBasicEmail">
             <Form.Label>Category Title</Form.Label>
             <Form.Control
@@ -206,14 +213,6 @@ export default function Categories() {
             />
           </Form.Group>
           <Form.Group>
-            {imageUrl && (
-              <Image
-                src={imageUrl}
-                style={{ width: "50px", height: "50px" }}
-                alt="no image added"
-                roundedCircle
-              />
-            )}
             <Form.File
               id="exampleFormControlFile1"
               label="Category Image"

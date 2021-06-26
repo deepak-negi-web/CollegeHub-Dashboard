@@ -1,7 +1,9 @@
 import React from "react";
 import { useSubscription } from "@apollo/client";
 import { ReactTabulator } from "react-tabulator";
+import { Modal, Button, Form, Image } from "react-bootstrap";
 import { Wrapper } from "./styles";
+import { DeleteIcon } from "../../../../Assets/icons";
 import tableOptions from "../../../../tableOptions";
 import { COLLEGES } from "../../../../GraphQl";
 export default function Colleges() {
@@ -42,6 +44,9 @@ export default function Colleges() {
   return (
     <Wrapper>
       <h1 className="heading">College Listing</h1>
+      <Button variant="primary" className="mb-4">
+        Add Category
+      </Button>
       {Boolean(colleges) && (
         <ReactTabulator
           columns={columns}
