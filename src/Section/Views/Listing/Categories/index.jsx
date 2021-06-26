@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSubscription, useMutation } from "@apollo/client";
 import { ReactTabulator, reactFormatter } from "react-tabulator";
-import { Modal, Button, Form, ProgressBar } from "react-bootstrap";
+import { Modal, Button, Form, Image } from "react-bootstrap";
 import { Wrapper } from "./styles";
 import { DeleteIcon } from "../../../../Assets/icons";
 import tableOptions from "../../../../tableOptions";
@@ -12,17 +12,19 @@ import {
   DELETE_CATEGORY,
 } from "../../../../GraphQl";
 import { firebaseUpload } from "../../../../utils";
+import { useEffect } from "react";
 
 export default function Categories() {
   const [show, setShow] = useState(false);
   const [titleAsId, setTitleAsId] = useState("");
   const [title, setTitle] = useState("");
   const [imageAsFile, setImageAsFile] = useState(null);
-  const [imageAsUrl, setImageAsUrl] = useState("");
-  const [uploadingProgress, setUploadingProgress] = useState(0);
+  const [imageUrl, setImageUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const {
     data: { courses_courseCategory: categories = [] } = {},
-    loading,
+    loading: isLoadingCategories,
     error,
   } = useSubscription(CATEGORIES);
   const [createCategory, { loading: isCreatingCategory }] = useMutation(
@@ -32,11 +34,13 @@ export default function Categories() {
         setShow(false);
         setTitle("");
         setTitleAsId("");
+        setImageUrl("");
       },
       onError: (error) => {
         setShow(false);
         setTitle("");
         setTitleAsId("");
+        setImageUrl("");
         console.log(error);
       },
     }
@@ -53,11 +57,13 @@ export default function Categories() {
         setShow(false);
         setTitle("");
         setTitleAsId("");
+        setImageUrl("");
       },
       onError: (error) => {
         setShow(false);
         setTitle("");
         setTitleAsId("");
+        setImageUrl("");
         console.log(error);
       },
     }
@@ -66,14 +72,16 @@ export default function Categories() {
   const handleClose = () => {
     setTitle("");
     setTitleAsId("");
+    setImageUrl("");
     setShow(false);
   };
   const handleShow = () => setShow(true);
 
   const rowClick = (e, cell) => {
-    const { title: categoryTitle } = cell._cell.row.data;
+    const { title: categoryTitle, assets } = cell._cell.row.data;
     setTitle(categoryTitle);
     setTitleAsId(categoryTitle);
+    setImageUrl(assets.images[0]);
     setShow(true);
   };
 
@@ -117,30 +125,48 @@ export default function Categories() {
   ];
 
   const upsertHandler = async () => {
+    setLoading(true);
     if (titleAsId) {
-      const imageUrl = await firebaseUpload(imageAsFile);
-      console.log({ imageUrl });
+      const url = await firebaseUpload(imageAsFile);
+      setImageUrl(url);
+      setLoading(false);
       updateCategory({
         variables: {
           title: titleAsId,
           _set: {
             title,
-            assets: { images: [imageUrl] },
+            assets: { images: [url] },
           },
         },
       });
     } else {
-      const imageUrl = await firebaseUpload(imageAsFile);
+      const url = await firebaseUpload(imageAsFile);
+      setImageUrl(url);
+      setLoading(false);
       createCategory({
         variables: {
           title,
-          assets: { images: [imageUrl] },
+          assets: { images: [url] },
         },
       });
     }
   };
 
-  if (loading) return <div className="loader">Loading...</div>;
+  useEffect(() => {
+    if (
+      isCreatingCategory ||
+      isUpdatingCategory ||
+      !title ||
+      !imageAsFile ||
+      loading
+    ) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+  }, [isCreatingCategory, isUpdatingCategory, loading, title, imageAsFile]);
+
+  if (isLoadingCategories) return <div className="loader">Loading...</div>;
   if (error) {
     console.error(error);
   }
@@ -180,6 +206,14 @@ export default function Categories() {
             />
           </Form.Group>
           <Form.Group>
+            {imageUrl && (
+              <Image
+                src={imageUrl}
+                style={{ width: "50px", height: "50px" }}
+                alt="no image added"
+                roundedCircle
+              />
+            )}
             <Form.File
               id="exampleFormControlFile1"
               label="Category Image"
@@ -194,7 +228,7 @@ export default function Categories() {
           <Button
             variant="primary"
             onClick={upsertHandler}
-            disabled={isCreatingCategory}
+            disabled={isDisabled}
           >
             {isCreatingCategory || isUpdatingCategory ? "Saving..." : "Save"}
           </Button>

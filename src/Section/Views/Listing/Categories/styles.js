@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
   .heading {
     text-align: center;
   }
+
   @media screen and (max-width: 767px) {
     width: calc(100vw - 11vw);
   }
