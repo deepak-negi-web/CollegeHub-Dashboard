@@ -57,4 +57,8 @@ export const NavBar = styled.nav`
     text-decoration: none;
     padding: 8px;
   }
+  .active-link {
+    color: #0d6efd;
+    text-decoration: underline;
+  }
 `;

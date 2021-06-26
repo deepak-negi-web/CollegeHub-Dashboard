@@ -19,20 +19,36 @@ export default function Header() {
         {isAuthenticated && <h2>Welcome Admin</h2>}
         <Spacer />
         <ul>
-          <NavLink className="link " to="/categories">
+          <NavLink
+            className="link"
+            activeClassName="active-link"
+            to="/categories"
+          >
             Categories
           </NavLink>
 
-          <NavLink className="link" to="/courses">
+          <NavLink className="link" activeClassName="active-link" to="/courses">
             Courses
           </NavLink>
-          <NavLink className="link" to="/colleges">
+          <NavLink
+            className="link"
+            activeClassName="active-link"
+            to="/colleges"
+          >
             Colleges
           </NavLink>
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <Button variant="danger" onClick={() => logout()}>
               Logout
             </Button>
+          ) : (
+            <NavLink
+              className="link"
+              activeClassName="active-link"
+              to="/admin-auth"
+            >
+              Login
+            </NavLink>
           )}
         </ul>
       </NavBar>
