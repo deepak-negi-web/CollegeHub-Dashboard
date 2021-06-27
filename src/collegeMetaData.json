@@ -1,0 +1,29 @@
+{
+  "facility": {
+    "atm": true,
+    "gym": true,
+    "mess": true,
+    "tour": true,
+    "hostel": true,
+    "canteen": true,
+    "library": true,
+    "classrooms": true,
+    "playground": true,
+    "campus_wifi": true,
+    "gate_timing": "6 PM (For All Students) , 9 PM For Staff",
+    "scholarship": ["NSP"],
+    "sports_level": "State Level",
+    "students_club": true,
+    "nearest_market": "5 min. from college campus (Jagat Market)",
+    "transportation": true,
+    "nearest_bus_stand": "Pari Chowk",
+    "medical_facilities": true,
+    "nearest_metro_station": "Pari Chowk"
+  },
+  "approved_by": "Approved by All India Council for Technical Education (AICTE)",
+  "campus_area": "5.2 acres",
+  "established": 2005,
+  "accredited_by": "NAAC, NBA, PCI, BCI",
+  "affiliated_to": "AKTU, Lucknow and CCSU, Meerut",
+  "institute_type": "private"
+}

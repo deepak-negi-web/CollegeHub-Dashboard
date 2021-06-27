@@ -21,7 +21,10 @@ export default function Auth() {
     } catch (err) {
       setLoading(false);
       console.log(err);
-      setError("Failed to sign up");
+      if (err.code === "auth/user-not-found") {
+        setError("No user record found!");
+      } else if (err.code === "auth/wrong-password")
+        setError("Invalid password!");
     }
   };
   if (loading) return <div className="loader">Loggin you in...</div>;

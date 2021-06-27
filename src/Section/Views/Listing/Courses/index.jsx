@@ -230,7 +230,7 @@ export default function Courses() {
         className="mb-4"
         onClick={() => setModalShow(true)}
       >
-        Add Category
+        Add Course
       </Button>
       {Boolean(courses) && (
         <ReactTabulator
