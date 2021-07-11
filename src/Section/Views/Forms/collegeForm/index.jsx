@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSubscription, useMutation } from "@apollo/client";
 import {
@@ -9,14 +9,17 @@ import {
   Container,
   Row,
   Col,
+  Tabs,
+  Tab,
 } from "react-bootstrap";
+import { AssetsComp, MetaDataComp, CoursesComp } from "./components";
 import { Wrapper } from "./styles";
 import { COLLEGE_INFO, UPDATE_COLLEGE_INFO } from "../../../../GraphQl";
 
 export default function CollegeForm() {
   const { collegeId } = useParams();
   const nameRef = useRef();
-
+  const [tabKey, setTabKey] = useState("home");
   const {
     data: { colleges_college_by_pk: college = {} } = {},
     error: hasCollegeError,
@@ -101,6 +104,27 @@ export default function CollegeForm() {
           </Form.Group>
         </Col>
       </Row>
+      <Tabs
+        id="controlled-tab-example"
+        activeKey={tabKey}
+        onSelect={(k) => setTabKey(k)}
+        className="mb-3 "
+      >
+        <Tab eventKey="home" title="Assets">
+          <AssetsComp />
+        </Tab>
+        <Tab eventKey="profile" title="Metadata">
+          <MetaDataComp />
+        </Tab>
+        <Tab eventKey="contact" title="Courses">
+          <CoursesComp
+            defaultCourses={college?.college_courses?.map(
+              (course) => course?.courseId
+            )}
+            collegeId={+collegeId}
+          />
+        </Tab>
+      </Tabs>
     </Container>
   );
 }
