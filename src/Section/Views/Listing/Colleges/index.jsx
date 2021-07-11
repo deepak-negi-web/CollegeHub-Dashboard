@@ -1,15 +1,22 @@
 import React, { useState, useRef } from "react";
-import { useSubscription } from "@apollo/client";
-import { ReactTabulator } from "react-tabulator";
+import { useSubscription, useMutation } from "@apollo/client";
+import { ReactTabulator, reactFormatter } from "react-tabulator";
 import { Modal, Button, Form, Image } from "react-bootstrap";
+import { useHistory } from "react-router-dom";
 import { Wrapper } from "./styles";
 import { DeleteIcon } from "../../../../Assets/icons";
 import tableOptions from "../../../../tableOptions";
-import { COLLEGES, COURSES } from "../../../../GraphQl";
+import {
+  COLLEGES,
+  COURSES,
+  CREATE_COLLEGE,
+  DELETE_COLLEGE,
+} from "../../../../GraphQl";
 import { getBooleanKeys, getBooleanObject } from "../../../../utils";
 import collegeMetaData from "../../../../collegeMetaData.json";
 
 export default function Colleges() {
+  const history = useHistory();
   const [modalShow, setModalShow] = useState(false);
   const [facility, setFacility] = useState(
     getBooleanObject(collegeMetaData.facility)
@@ -28,6 +35,44 @@ export default function Colleges() {
     loading: isCoursesLoading,
     error: coursesError,
   } = useSubscription(COURSES);
+
+  const [deleteCollege, { loading: isDeletingCollege }] = useMutation(
+    DELETE_COLLEGE,
+    {
+      onCompleted: ({ delete_colleges_college_by_pk: college }) => {
+        console.log({ college });
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    }
+  );
+
+  const [createCollege, { loading: isCreatingCollege }] = useMutation(
+    CREATE_COLLEGE,
+    {
+      onCompleted: ({ insert_colleges_college_one: college }) => {
+        setModalShow(false);
+        history.push(`/colleges/${college?.id}`);
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    }
+  );
+
+  const deleteHandler = (e, college) => {
+    e.stopPropagation();
+    if (
+      window.confirm(`Are you sure you want to delete ${college.name} course?`)
+    ) {
+      deleteCollege({
+        variables: {
+          id: college.id,
+        },
+      });
+    }
+  };
 
   const columns = [
     {
@@ -51,6 +96,17 @@ export default function Colleges() {
       headerFilter: true,
       hozAlign: "left",
     },
+    {
+      title: "Remove",
+      field: "action",
+      cellClick: (e, cell) => {
+        e.stopPropagation();
+        deleteHandler(e, cell._cell.row.data);
+      },
+      formatter: reactFormatter(<DeleteIcon size="20" color="#e76f51" />),
+      hozAlign: "center",
+      width: 150,
+    },
   ];
 
   const closeModal = () => {
@@ -66,6 +122,23 @@ export default function Colleges() {
         [name]: checked,
       };
     });
+  };
+
+  const handleCreate = () => {
+    createCollege({
+      variables: {
+        object: {
+          name: nameRef.current.value,
+          location: locationRef.current.value,
+          info: descriptionRef.current.value,
+        },
+      },
+    });
+    // console.log({
+    //   name: nameRef.current.value,
+    //   location: locationRef.current.value,
+    //   description: descriptionRef.current.value,
+    // });
   };
 
   if (loading || isCoursesLoading)
@@ -131,7 +204,7 @@ export default function Colleges() {
               />
             </Form.Group>
 
-            <Form.Group>
+            {/* <Form.Group>
               <Form.File
                 id="college-image"
                 label="Images"
@@ -169,25 +242,15 @@ export default function Colleges() {
                   );
                 })}
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
           </Modal.Body>
           <Modal.Footer>
             <Button
+              disabled={isCreatingCollege}
               variant="primary"
-              onClick={() =>
-                console.log({
-                  name: nameRef.current.value,
-                  location: locationRef.current.value,
-                  description: descriptionRef.current.value,
-                  course: Array.from(
-                    courseRef.current.selectedOptions,
-                    (item) => +item.value
-                  ),
-                  facility,
-                })
-              }
+              onClick={handleCreate}
             >
-              Create
+              {isCreatingCollege ? "Creating..." : "Create"}
             </Button>
           </Modal.Footer>
         </Form>

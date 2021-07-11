@@ -8,6 +8,7 @@ import {
   CollegeListing,
   CourseListing,
   Auth,
+  CollegeForm,
 } from "../Views";
 export default function Main() {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,12 @@ export default function Main() {
           path="/colleges"
           exact
           component={CollegeListing}
+          isAuthenticated={isAuthenticated}
+        />
+        <ProtectedRoute
+          path="/colleges/:collegeId"
+          exact
+          component={CollegeForm}
           isAuthenticated={isAuthenticated}
         />
       </Switch>

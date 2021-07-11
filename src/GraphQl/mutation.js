@@ -95,3 +95,33 @@ export const UPDATE_COURSE_CATEGORY_LINK = gql`
     }
   }
 `;
+
+export const CREATE_COLLEGE = gql`
+  mutation CREATE_COLLEGE($object: colleges_college_insert_input!) {
+    insert_colleges_college_one(object: $object) {
+      id
+      info
+      location
+    }
+  }
+`;
+
+export const DELETE_COLLEGE = gql`
+  mutation DELETE_COLLEGE($id: Int!) {
+    delete_colleges_college_by_pk(id: $id) {
+      id
+      name
+    }
+  }
+`;
+
+export const UPDATE_COLLEGE_INFO = gql`
+  mutation UPDATE_COLLEGE_INFO($id: Int!, $_set: colleges_college_set_input!) {
+    update_colleges_college_by_pk(pk_columns: { id: $id }, _set: $_set) {
+      id
+      name
+      location
+      info
+    }
+  }
+`;
