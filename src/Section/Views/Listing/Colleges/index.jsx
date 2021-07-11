@@ -74,6 +74,11 @@ export default function Colleges() {
     }
   };
 
+  const rowClick = (e, cell) => {
+    const { id } = cell._cell.row.data;
+    history.push(`/colleges/${id}`);
+  };
+
   const columns = [
     {
       title: "Id",
@@ -82,6 +87,9 @@ export default function Colleges() {
       headerFilter: true,
       cssClass: "rowClick",
       hozAlign: "left",
+      cellClick: (e, cell) => {
+        rowClick(e, cell);
+      },
     },
     {
       title: "Name",
