@@ -125,3 +125,23 @@ export const UPDATE_COLLEGE_INFO = gql`
     }
   }
 `;
+
+export const CREATE_COLLEGE_COURSES = gql`
+  mutation CREATE_COLLEGE_COURSES(
+    $objects: [colleges_college_courses_insert_input!]!
+  ) {
+    insert_colleges_college_courses(
+      objects: $objects
+      on_conflict: {
+        constraint: college_courses_collegeId_courseId_key
+        update_columns: courseId
+      }
+    ) {
+      returning {
+        id
+        courseId
+        collegeId
+      }
+    }
+  }
+`;
