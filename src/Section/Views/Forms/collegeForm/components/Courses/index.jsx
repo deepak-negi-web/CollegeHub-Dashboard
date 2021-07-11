@@ -8,6 +8,10 @@ import { COURSES, CREATE_COLLEGE_COURSES } from "../../../../../../GraphQl";
 export default function CoursesComp({ defaultCourses, collegeId }) {
   const { addToast } = useToasts();
   const courseRef = useRef("");
+  const feesDurationTypeRef = useRef();
+  const feeRef = useRef();
+  const [eligibilityList, setEligibilityList] = useState([]);
+  const [streamList, setStreamList] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const {
     data: { courses_courses: courses = [] } = {},
@@ -50,6 +54,48 @@ export default function CoursesComp({ defaultCourses, collegeId }) {
     });
   };
 
+  const onChangeHandler = (e, id) => {
+    const { name, value } = e.target;
+    if (name === "eligibility") {
+      console.log([{ id, value }]);
+      setEligibilityList((prev) => {
+        const prevValueById = prev.find((el) => el.id === id);
+        if (prevValueById) {
+          prevValueById.value = value;
+          return [...prev];
+        } else {
+          return [...prev, { id, value }];
+        }
+      });
+    } else if (name === "stream") {
+      setStreamList((prev) => {
+        const prevValueById = prev.find((el) => el.id === id);
+        if (prevValueById) {
+          prevValueById.value = value;
+          return [...prev];
+        } else {
+          return [...prev, { id, value, hasStream: true }];
+        }
+      });
+    }
+  };
+
+  const checkboxHandler = (id) => {
+    setStreamList((prev) => {
+      const prevStreams = prev;
+      const prevValueByIdIndex = prev.findIndex((el) => el.id === id);
+      if (prevValueByIdIndex !== -1) {
+        prevStreams[prevValueByIdIndex] = {
+          ...prevStreams[prevValueByIdIndex],
+          hasStream: !prevStreams[prevValueByIdIndex].hasStream,
+        };
+        return [...prevStreams];
+      } else {
+        return [...prev, { id, value: "", hasStream: true }];
+      }
+    });
+  };
+
   useEffect(() => {
     if (defaultCourses.length > 0) {
       const selectedCoursesFromDefaultCourses = courses.filter((course) =>
@@ -88,6 +134,81 @@ export default function CoursesComp({ defaultCourses, collegeId }) {
           displayValue="name" // Property name to display in the dropdown options
         />
       </Form.Group>
+      <div>
+        {selectedCourses.map((course) => {
+          return (
+            <div key={course?.id}>
+              <h5>{course?.name}</h5>
+              <div className="d-flex">
+                <Form.Group>
+                  <Form.Label>Course fee</Form.Label>
+                  <Form.Control
+                    type="number"
+                    placeholder="Enter fee"
+                    ref={feeRef}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Course type</Form.Label>
+                  <Form.Control as="select" ref={feesDurationTypeRef}>
+                    <option value="monthy">monthly</option>
+                    <option value="quarterly" selected>
+                      quarterly
+                    </option>
+                    <option value="yearly">yearly</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="ml-2">
+                  <Form.Label>Eligibility</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="eligibility"
+                    placeholder="Enter eligibility"
+                    onChange={(e) => onChangeHandler(e, course?.id)}
+                    onKeyDown={(e) => onChangeHandler(e, course?.id)}
+                    value={
+                      eligibilityList.find(
+                        (eligibility) => eligibility?.id === course?.id
+                      )?.value
+                    }
+                  />
+                </Form.Group>
+                <Form.Group className="ml-2">
+                  <Form.Label>hasStream</Form.Label>
+                  <br />
+                  <Form.Check
+                    inline
+                    type="checkbox"
+                    checked={
+                      streamList.find((stream) => stream?.id === course?.id)
+                        ?.hasStream || false
+                    }
+                    onChange={() => checkboxHandler(course?.id)}
+                  />
+                </Form.Group>
+                {(streamList.find((stream) => stream?.id === course?.id)
+                  ?.hasStream ||
+                  false) && (
+                  <Form.Group className="ml-2">
+                    <Form.Label>Streams</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="stream"
+                      placeholder="Enter streams"
+                      onChange={(e) => onChangeHandler(e, course?.id)}
+                      onKeyDown={(e) => onChangeHandler(e, course?.id)}
+                      value={
+                        streamList.find((stream) => stream?.id === course?.id)
+                          ?.value
+                      }
+                    />
+                  </Form.Group>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </Container>
   );
 }

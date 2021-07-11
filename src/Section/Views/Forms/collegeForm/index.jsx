@@ -114,7 +114,10 @@ export default function CollegeForm() {
           <AssetsComp />
         </Tab>
         <Tab eventKey="profile" title="Metadata">
-          <MetaDataComp />
+          <MetaDataComp
+            collegeMetaData={college?.metaDetails}
+            collegeId={+collegeId}
+          />
         </Tab>
         <Tab eventKey="contact" title="Courses">
           <CoursesComp
