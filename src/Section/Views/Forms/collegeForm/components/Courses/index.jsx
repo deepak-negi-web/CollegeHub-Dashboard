@@ -40,25 +40,29 @@ export default function CoursesComp({ defaultCourses, collegeId }) {
     setSelectedCourses(
       data.map((el) => ({
         ...el,
-        fees: null,
-        eligibility: "",
-        hasStreams: false,
-        streams: "",
+        fees: el?.fees || null,
+        eligibility: el?.eligibility || "",
+        hasStreams: el?.hasStreams || false,
+        streams: el?.streams || "",
       }))
     );
   };
 
   const addHandler = () => {
+    console.log({ selectedCourses });
     const coursesArray = selectedCourses.map((course) => {
       return {
         collegeId,
         courseId: course?.id,
         fees: course?.fees,
-        eligibility: course?.eligibility?.split(",") || null,
+        eligibility: course?.eligibility
+          ? course?.eligibility.split(",")
+          : null,
         hasStreams: course?.hasStreams || false,
-        streams: course?.hasStreams ? course?.streams?.split(",") : null,
+        streams: course?.hasStreams ? course?.streams.split(",") : null,
       };
     });
+
     addCoursesToCollege({
       variables: {
         objects: coursesArray,
@@ -119,7 +123,13 @@ export default function CoursesComp({ defaultCourses, collegeId }) {
 
   useEffect(() => {
     if (defaultCourses.length > 0) {
-      setSelectedCourses(defaultCourses);
+      setSelectedCourses(
+        defaultCourses.map((course) => ({
+          ...course,
+          eligibility: course?.eligibility?.join(),
+          streams: course?.streams?.join(),
+        }))
+      );
     }
   }, [defaultCourses]);
 

@@ -87,9 +87,6 @@ export default function Colleges() {
       headerFilter: true,
       cssClass: "rowClick",
       hozAlign: "left",
-      cellClick: (e, cell) => {
-        rowClick(e, cell);
-      },
     },
     {
       title: "Name",
@@ -97,6 +94,9 @@ export default function Colleges() {
       width: "300",
       headerFilter: true,
       hozAlign: "left",
+      cellClick: (e, cell) => {
+        rowClick(e, cell);
+      },
     },
     {
       title: "Location",
