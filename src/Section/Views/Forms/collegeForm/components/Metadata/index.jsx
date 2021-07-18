@@ -3,25 +3,33 @@ import { Container, Form, Row, Col, Button, Badge } from "react-bootstrap";
 import { useToasts } from "react-toast-notifications";
 import Multiselect from "multiselect-react-dropdown";
 import { useSubscription, useMutation } from "@apollo/client";
-import { COURSES, CREATE_COLLEGE_COURSES } from "../../../../../../GraphQl";
-import { getBooleanKeys, getBooleanObject } from "../../../../../../utils";
+import { UPDATE_COLLEGE_INFO } from "../../../../../../GraphQl";
+import {
+  getBooleanKeys,
+  getBooleanObject,
+  getStringObject,
+  getStringKeys,
+} from "../../../../../../utils";
+import metaDataOptions from "../../../../../../collegeMetaData.json";
 
 export default function MetadataComp({ collegeMetaData, collegeId }) {
+  console.log("MetadataComp", collegeMetaData);
   const { addToast } = useToasts();
   const feesDurationTypeRef = useRef();
   const feeRef = useRef();
   const [eligibility, setEligibility] = useState("");
   const [eligibilityList, setEligibilityList] = useState([]);
-  const [facility, setFacility] = useState(
-    getBooleanObject(collegeMetaData.facility)
-  );
+  const [metaDetails, setMetaDetails] = useState(collegeMetaData);
 
-  const [addCoursesToCollege, { loading: isAddingCourses }] = useMutation(
-    CREATE_COLLEGE_COURSES,
+  console.log(getStringObject(collegeMetaData?.metaDetails));
+
+  const [updateCollegeInfo, { loading: isUpdatingCollegeInfo }] = useMutation(
+    UPDATE_COLLEGE_INFO,
     {
       onCompleted: () => {
-        console.log("Course Added successfully!");
-        addToast("Course Added successfully!", { appearance: "success" });
+        addToast("College info updated successfully!", {
+          appearance: "success",
+        });
       },
       onError: (error) => {
         console.error(error);
@@ -31,41 +39,50 @@ export default function MetadataComp({ collegeMetaData, collegeId }) {
   );
 
   const checkboxHandler = (e) => {
-    const checked = e.target.checked;
     const name = e.target.name;
-    setFacility((prev) => {
+    setMetaDetails((prev) => {
       return {
         ...prev,
-        [name]: checked,
+        facility: {
+          ...prev.facility,
+          [name]: !prev.facility[name],
+        },
       };
     });
   };
 
-  const onChangeHandler = (e) => {
+  const onChangeHandler = (e, type) => {
     const { name, value } = e.target;
-    if (name === "eligibility") {
-      setEligibility(value);
-      if (e.key === "Enter" || e.keyCode === 13) {
-        setEligibility("");
-        setEligibilityList((prev) => [...prev, value]);
-      }
-      console.log({ code: e.keyCode });
+    if (type === "root") {
+      setMetaDetails((prev) => {
+        return {
+          ...prev,
+          [name]: value,
+        };
+      });
+    } else {
+      setMetaDetails((prev) => {
+        return {
+          ...prev,
+          [type]: {
+            ...prev[type],
+            [name]: value,
+          },
+        };
+      });
     }
   };
 
-  //   const addHandler = () => {
-  //     const coursesArray = selectedCourses.map((course) => {
-  //       return {
-  //         collegeId,
-  //         courseId: course.id,
-  //       };
-  //     });
-  //     addCoursesToCollege({
-  //       variables: {
-  //         objects: coursesArray,
-  //       },
-  //     });
-  //   };
+  const addMetaDetailsHandler = () => {
+    updateCollegeInfo({
+      variables: {
+        id: collegeId,
+        _set: {
+          metaDetails,
+        },
+      },
+    });
+  };
 
   //   useEffect(() => {
   //     if (defaultCourses.length > 0) {
@@ -88,58 +105,68 @@ export default function MetadataComp({ collegeMetaData, collegeId }) {
         <p>
           <Button
             variant="primary"
-            // onClick={addHandler}
-            disabled={isAddingCourses}
+            onClick={addMetaDetailsHandler}
+            disabled={isUpdatingCollegeInfo}
           >
-            {isAddingCourses ? "Adding..." : "Add metadata"}
+            {isUpdatingCollegeInfo ? "Adding..." : "Add metadata"}
           </Button>
         </p>
       </div>
-      <Row>
-        <Form.Group>
-          <Form.Label>Course fee</Form.Label>
-          <Form.Control type="number" placeholder="Enter fee" ref={feeRef} />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Course type</Form.Label>
-          <Form.Control as="select" ref={feesDurationTypeRef}>
-            <option value="monthy">monthly</option>
-            <option value="quarterly" selected>
-              quarterly
-            </option>
-            <option value="yearly">yearly</option>
-          </Form.Control>
-        </Form.Group>
-      </Row>
+
       <Form.Group>
         <Form.Label> Facility</Form.Label>
         <br />
-        {getBooleanKeys(collegeMetaData.facility).map((key, index) => {
-          return (
-            <Form.Check
-              key={key}
-              inline
-              label={key}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
+            gridGap: "16px",
+          }}
+        >
+          {metaDetails &&
+            getBooleanKeys(metaDetails?.facility).map((key, index) => {
+              return (
+                <Form.Check
+                  key={key}
+                  inline
+                  label={key}
+                  name={key}
+                  type="checkbox"
+                  id={index}
+                  checked={metaDetails?.facility[key]}
+                  onChange={checkboxHandler}
+                />
+              );
+            })}
+        </div>
+      </Form.Group>
+      {metaDetails &&
+        getStringKeys(metaDetails?.facility).map((key) => (
+          <Form.Group key={key}>
+            <Form.Label>{key}</Form.Label>
+            <Form.Control
+              type="text"
               name={key}
-              type="checkbox"
-              id={index}
-              checked={facility[key]}
-              onChange={checkboxHandler}
+              placeholder={`Enter ${key}`}
+              onChange={(e) => onChangeHandler(e, "facility")}
+              // onKeyDown={(e) => onChangeHandler(e, course?.id)}
+              value={metaDetails?.facility[key]}
             />
-          );
-        })}
-      </Form.Group>
-      <Form.Group>
-        <Form.Label>Eligibility</Form.Label>
-        <Form.Control
-          type="text"
-          name="eligibility"
-          placeholder="Enter eligibility"
-          onChange={onChangeHandler}
-          onKeyDown={onChangeHandler}
-          value={eligibility}
-        />
-      </Form.Group>
+          </Form.Group>
+        ))}
+      {metaDetails &&
+        getStringKeys(metaDetails).map((key) => (
+          <Form.Group key={key}>
+            <Form.Label>{key}</Form.Label>
+            <Form.Control
+              type="text"
+              name={key}
+              placeholder={`Enter ${key}`}
+              onChange={(e) => onChangeHandler(e, "root")}
+              value={metaDetails[key]}
+            />
+          </Form.Group>
+        ))}
     </Container>
   );
 }
