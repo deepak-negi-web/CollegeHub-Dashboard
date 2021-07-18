@@ -49,7 +49,10 @@ export const COLLEGE_INFO = gql`
         hasStreams
         fees
         eligibility
-        courseId
+        course {
+          id
+          name
+        }
       }
     }
   }

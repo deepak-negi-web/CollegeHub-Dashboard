@@ -121,9 +121,11 @@ export default function CollegeForm() {
         </Tab>
         <Tab eventKey="contact" title="Courses">
           <CoursesComp
-            defaultCourses={college?.college_courses?.map(
-              (course) => course?.courseId
-            )}
+            defaultCourses={college?.college_courses?.map((clg_course) => ({
+              ...clg_course,
+              id: clg_course?.course?.id,
+              name: clg_course?.course?.name,
+            }))}
             collegeId={+collegeId}
           />
         </Tab>
