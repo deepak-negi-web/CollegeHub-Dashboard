@@ -1,24 +1,17 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Container, Form, Row, Col, Button, Badge } from "react-bootstrap";
+import React, { useRef, useState } from "react";
+import { Container, Form, Button } from "react-bootstrap";
 import { useToasts } from "react-toast-notifications";
-import Multiselect from "multiselect-react-dropdown";
-import { useSubscription, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { UPDATE_COLLEGE_INFO } from "../../../../../../GraphQl";
 import {
   getBooleanKeys,
-  getBooleanObject,
   getStringObject,
   getStringKeys,
 } from "../../../../../../utils";
-import metaDataOptions from "../../../../../../collegeMetaData.json";
 
 export default function MetadataComp({ collegeMetaData, collegeId }) {
   console.log("MetadataComp", collegeMetaData);
   const { addToast } = useToasts();
-  const feesDurationTypeRef = useRef();
-  const feeRef = useRef();
-  const [eligibility, setEligibility] = useState("");
-  const [eligibilityList, setEligibilityList] = useState([]);
   const [metaDetails, setMetaDetails] = useState(collegeMetaData);
 
   console.log(getStringObject(collegeMetaData?.metaDetails));

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 import { useSubscription, useMutation } from "@apollo/client";
 import {
   Modal,
@@ -17,6 +18,7 @@ import { Wrapper } from "./styles";
 import { COLLEGE_INFO, UPDATE_COLLEGE_INFO } from "../../../../GraphQl";
 
 export default function CollegeForm() {
+  const { addToast } = useToasts();
   const { collegeId } = useParams();
   const nameRef = useRef();
   const [tabKey, setTabKey] = useState("home");
@@ -35,6 +37,7 @@ export default function CollegeForm() {
     {
       onCompleted: () => {
         console.log("update completed");
+        addToast("Successfully updated!", { appearance: "success" });
       },
       onError: (error) => {
         console.error(error);
@@ -71,6 +74,7 @@ export default function CollegeForm() {
               ref={nameRef}
               defaultValue={college?.name}
               onBlur={onBlurHandler}
+              disabled={isUpdatingCollegeInfo}
             />
           </Form.Group>
         </Col>
@@ -84,6 +88,7 @@ export default function CollegeForm() {
               ref={nameRef}
               defaultValue={college?.location}
               onBlur={onBlurHandler}
+              disabled={isUpdatingCollegeInfo}
             />
           </Form.Group>
         </Col>
@@ -100,6 +105,7 @@ export default function CollegeForm() {
               ref={nameRef}
               defaultValue={college?.info}
               onBlur={onBlurHandler}
+              disabled={isUpdatingCollegeInfo}
             />
           </Form.Group>
         </Col>
@@ -111,7 +117,7 @@ export default function CollegeForm() {
         className="mb-3 "
       >
         <Tab eventKey="home" title="Assets">
-          <AssetsComp assets={college?.assets} />
+          <AssetsComp assets={college?.assets} collegeId={+collegeId} />
         </Tab>
         <Tab eventKey="profile" title="Metadata">
           <MetaDataComp
